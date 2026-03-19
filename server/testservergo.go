@@ -7,9 +7,10 @@ import (
 )
 
 type Heartbeat struct {
-	Hostname  string `json:"hostname"`
-	Timestamp string `json:"timestamp"`
-	Status    string `json:"status"`
+	Hostname  string   `json:"hostname"`
+	Timestamp string   `json:"timestamp"`
+	Status    string   `json:"status"`
+	IPs       []string `json:"ips"`
 }
 
 func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
@@ -24,7 +25,7 @@ func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("heartbeat: hostname=%s timestamp=%s status=%s", hb.Hostname, hb.Timestamp, hb.Status)
+	log.Printf("heartbeat: hostname=%s timestamp=%s status=%s IPs=%s", hb.Hostname, hb.Timestamp, hb.Status, hb.IPs)
 	w.WriteHeader(http.StatusOK)
 }
 

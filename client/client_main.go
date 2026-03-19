@@ -35,7 +35,7 @@ func main() {
 		Timeout: 5 * time.Second,
 	}
 
-	log.Printf("heartbeat agent started: server=%s hostname=%s interval=%ds", cfg.ServerURL, hostname, cfg.IntervalSec)
+	log.Printf("heartbeat agent started: server=%s hostname=%s interval=%d", cfg.ServerURL, hostname, cfg.IntervalSec)
 
 	sendHeartbeat(client, cfg, hostname)
 
