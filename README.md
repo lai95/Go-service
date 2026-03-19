@@ -8,13 +8,13 @@ The goal of this project is to evolve into a lightweight infrastructure diagnost
 
 The project currently consists of two components:
 
-Server
+--Server
 
 A minimal HTTP API server that listens for heartbeat messages.
 
 Location:
 
-server/main.go
+server/testservergo.go
 
 Responsibilities:
 
@@ -25,29 +25,25 @@ Expose endpoint:
 POST /heartbeat
 
 Receive JSON heartbeat messages
-
 Log received machine status
 
-Agent (Client)
+--Agent (Client)
 
 A lightweight daemon that runs inside a PXE-booted Alpine Linux image.
 
 Location:
 
-agent/main.go
-
-Responsibilities:
+agent/client_main.go
 
 Read configuration from:
 
-/etc/heartbeat-agent/config.json
+/project-dir/client/config.json
 
 Collect basic system identity:
 
 Hostname
-
 IPv4 addresses
-
+CPU Usage
 Send heartbeat periodically to the server
 
 
