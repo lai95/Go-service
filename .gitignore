@@ -1,0 +1,11 @@
+# binaries
+telemetry-server
+*.exe
+*.out
+
+# logs
+*.log
+
+# temp
+tmp/~
+
