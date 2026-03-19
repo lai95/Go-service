@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -21,6 +22,7 @@ type Heartbeat struct {
 	Timestamp string   `json:"timestamp"`
 	Status    string   `json:"status"`
 	IPs       []string `json:"ips,omitempty"`
+	CPUUsage  float64  `json:"cpu_usage"`
 }
 
 func main() {
@@ -84,6 +86,7 @@ func sendHeartbeat(client *http.Client, cfg Config, hostname string) {
 		Timestamp: time.Now().UTC().Format(time.RFC3339),
 		Status:    cfg.Status,
 		IPs:       getIPv4s(),
+		CPUUsage:  getCPUUsage(),
 	}
 
 	data, err := json.Marshal(hb)
@@ -106,7 +109,7 @@ func sendHeartbeat(client *http.Client, cfg Config, hostname string) {
 	}
 	defer resp.Body.Close()
 
-	log.Printf("heartbeat sent: status_code=%d hostname=%s", resp.StatusCode, hostname)
+	log.Printf("heartbeat sent: status_code=%d hostname=%s ips=%v cpu_usage=%.2f%%", resp.StatusCode, hostname, hb.IPs, hb.CPUUsage)
 }
 
 func getIPv4s() []string {
@@ -146,4 +149,75 @@ func getIPv4s() []string {
 	}
 
 	return ips
+}
+func getCPUUsage() float64 {
+	idle1, total1, err := readCPUStat()
+	if err != nil {
+		log.Printf("failed to read cpu stat (first read): %v", err)
+		return 0
+	}
+
+	time.Sleep(500 * time.Millisecond)
+
+	idle2, total2, err := readCPUStat()
+	if err != nil {
+		log.Printf("failed to read cpu stat (second read): %v", err)
+		return 0
+	}
+
+	idleDelta := float64(idle2 - idle1)
+	totalDelta := float64(total2 - total1)
+
+	if totalDelta <= 0 {
+		return 0
+	}
+
+	usage := 100 * (1.0 - (idleDelta / totalDelta))
+	if usage < 0 {
+		return 0
+	}
+	if usage > 100 {
+		return 100
+	}
+
+	return usage
+}
+
+func readCPUStat() (idle uint64, total uint64, err error) {
+	data, err := os.ReadFile("/proc/stat")
+	if err != nil {
+		return 0, 0, err
+	}
+
+	lines := bytes.Split(data, []byte("\n"))
+	if len(lines) == 0 {
+		return 0, 0, os.ErrInvalid
+	}
+
+	fields := bytes.Fields(lines[0])
+	if len(fields) < 8 || string(fields[0]) != "cpu" {
+		return 0, 0, os.ErrInvalid
+	}
+
+	var values []uint64
+	for _, f := range fields[1:] {
+		var v uint64
+		_, err := fmt.Sscanf(string(f), "%d", &v)
+		if err != nil {
+			return 0, 0, err
+		}
+		values = append(values, v)
+	}
+
+	for _, v := range values {
+		total += v
+	}
+
+	// idle + iowait
+	idle = values[3]
+	if len(values) > 4 {
+		idle += values[4]
+	}
+
+	return idle, total, nil
 }
