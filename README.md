@@ -1,52 +1,39 @@
-Telemetry Platform (PXE Diagnostics)
+**Telemetry Platform (PXE Diagnostics)**
 
-This project is a simple telemetry system written in Go.
+This project is a simple telemetry system written in **Go**.
+
 It is designed to run diagnostic agents on PXE-booted machines and collect heartbeat information on a central server.
 
-The goal of this project is to evolve into a lightweight infrastructure diagnostics and monitoring platform.
+**The goal** of this project is to evolve into a lightweight infrastructure diagnostics and monitoring platform.
 
 
 The project currently consists of two components:
 
---Server
+***Server:***
 
 A minimal HTTP API server that listens for heartbeat messages.
 
-Location:
+- **Location:** server/testservergo.go
 
-server/testservergo.go
-
-Responsibilities:
-
-Listen on TCP port (default :8080)
-
-Expose endpoint:
-
-POST /heartbeat
-
-Receive JSON heartbeat messages
+- **Responsibilities:** 
+  - **Listen** on TCP port (default :8080)
+  - **Expose endpoint:** POST /heartbeat
+  - **Receive** JSON heartbeat messages
 Log received machine status
 
---Agent (Client)
+***Agent(Client):***
 
 A lightweight daemon that runs inside a PXE-booted Alpine Linux image.
 
-Location:
-
+- **Location:**
 agent/client_main.go
+- **Responsibilities:**
 
-Read configuration from:
+  - **Read** configuration from: /project-dir/client/config.json
 
-/project-dir/client/config.json
-
-Collect basic system identity:
-
-Hostname
-IPv4 addresses
-CPU Usage
-Send heartbeat periodically to the server
+  - **Collect** basic system identity:
+Hostname, IPv4 addresses, CPU Usage
+  - **Send** heartbeat periodically to the server
 
 
-
-
-I AM RESISTING THE URGE TO NAME EVERY FILE AND FUNCTION MEME NAMES.
+>**I AM RESISTING THE URGE TO NAME EVERY FILE AND FUNCTION MEME NAMES.**
