@@ -11,6 +11,7 @@ type Heartbeat struct {
 	Timestamp string   `json:"timestamp"`
 	Status    string   `json:"status"`
 	IPs       []string `json:"ips"`
+	CPUUsage  float64  `json:"cpu_usage"`
 }
 
 func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +26,7 @@ func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("heartbeat: hostname=%s timestamp=%s status=%s IPs=%s", hb.Hostname, hb.Timestamp, hb.Status, hb.IPs)
+	log.Printf("heartbeat: hostname=%s timestamp=%s status=%s IPs=%s CPUUsage=%.2f%%", hb.Hostname, hb.Timestamp, hb.Status, hb.IPs, hb.CPUUsage)
 	w.WriteHeader(http.StatusOK)
 }
 
